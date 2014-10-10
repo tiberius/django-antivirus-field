@@ -9,5 +9,5 @@ setup(
     author='Maxim Smirnoff',
     author_email='smirnoffmg@gmail.com',
     description='Django FileField with ClamAV protection',
-    requires=['django', 'pyclamd'],
+    requires=['django', 'pyclamd', 'south'],
 )
