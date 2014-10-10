@@ -8,5 +8,6 @@ setup(
     license='MIT',
     author='Maxim Smirnoff',
     author_email='smirnoffmg@gmail.com',
-    description='Django FileField with clamav protection'
+    description='Django FileField with ClamAV protection',
+    requires=['django', 'pyclamd'],
 )
