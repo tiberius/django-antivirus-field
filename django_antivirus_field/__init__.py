@@ -19,4 +19,4 @@ if django.VERSION[1] < 7:  # django < 1.7.0
     except Exception as err:
         warnings.warn('Problem with south: {}'.format(str(err)))
 
-__ALL__ = ['ProtectedFileField']
+__all__ = ['ProtectedFileField']
