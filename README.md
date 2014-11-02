@@ -5,8 +5,8 @@ Django FileField with ClamAV protection
 
 How to install:
 
-1. pip install django-antivirus-field
+1. Do `pip install django-antivirus-field`
 
-2. put 'django_antivirus_field' into INSTALLED_APPS, if you want to.
+2. Put 'django_antivirus_field' into INSTALLED_APPS, if you want to.
 
-3. instead of FileField, use ProtectedFileField from package
+3. Instead of FileField, use ProtectedFileField from package
