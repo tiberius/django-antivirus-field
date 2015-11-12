@@ -7,12 +7,20 @@ from django.conf import settings
 
 
 ANTIVIRUS_ON = getattr(settings, 'CLAMAV_ACTIVE', False)
+CLAM_SOCKTYPE = getattr(settings, 'CLAMAV_SOCKTYPE', 'unix')
+CLAM_HOST = getattr(settings, 'CLAMAV_HOST', 'localhost')
+CLAM_PORT = getattr(settings, 'CLAMAV_PORT', 3310)
 
 if ANTIVIRUS_ON:
     try:
         import pyclamd
 
-        clam = pyclamd.ClamdUnixSocket()
+        if CLAM_SOCKTYPE == 'unix':
+            clam = pyclamd.ClamdUnixSocket()
+
+        elif CLAM_SOCKTYPE == 'tcp':
+            clam = pyclamd.ClamdNetworkSocket(host=CLAM_HOST, port=CLAM_PORT)
+
         clam.ping()
 
     except Exception as err:
