@@ -11,21 +11,31 @@ CLAM_SOCKTYPE = getattr(settings, 'CLAMAV_SOCKTYPE', 'unix')
 CLAM_HOST = getattr(settings, 'CLAMAV_HOST', 'localhost')
 CLAM_PORT = getattr(settings, 'CLAMAV_PORT', 3310)
 
-if ANTIVIRUS_ON:
-    try:
-        import pyclamd
+_clam = None
 
-        if CLAM_SOCKTYPE == 'unix':
-            clam = pyclamd.ClamdUnixSocket()
 
-        elif CLAM_SOCKTYPE == 'tcp':
-            clam = pyclamd.ClamdNetworkSocket(host=CLAM_HOST, port=CLAM_PORT)
+def get_clam():
+    global _clam
 
-        clam.ping()
+    if _clam is None:
 
-    except Exception as err:
-        warnings.warn('Problem with ClamAV: {}'.format(str(err)))
-        clam = None
+        if ANTIVIRUS_ON:
+            try:
+                import pyclamd
+
+                if CLAM_SOCKTYPE == 'unix':
+                    _clam = pyclamd.ClamdUnixSocket()
+
+                elif CLAM_SOCKTYPE == 'tcp':
+                    _clam = pyclamd.ClamdNetworkSocket(host=CLAM_HOST, port=CLAM_PORT)
+
+                _clam.ping()
+
+            except Exception as err:
+                warnings.warn('Problem with ClamAV: {}'.format(str(err)))
+                _clam = None
+
+    return _clam
 
 
 def is_infected(stream):
@@ -36,6 +46,7 @@ def is_infected(stream):
         False, '' - if not virus detected
         None, '' - status unknown (pyclamd not installed)
     """
+    clam = get_clam()
     if not ANTIVIRUS_ON or clam is None:
         return None, ''
 
