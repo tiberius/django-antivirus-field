@@ -2,38 +2,32 @@
 from __future__ import unicode_literals
 
 import warnings
-
-from django.conf import settings
-
-
-ANTIVIRUS_ON = getattr(settings, 'CLAMAV_ACTIVE', False)
-CLAM_SOCKTYPE = getattr(settings, 'CLAMAV_SOCKTYPE', 'unix')
-CLAM_HOST = getattr(settings, 'CLAMAV_HOST', 'localhost')
-CLAM_PORT = getattr(settings, 'CLAMAV_PORT', 3310)
+from django_antivirus_field import settings
 
 _clam = None
 
 
 def get_clam():
+    if not settings.antivirus_on:
+        return None
+
     global _clam
 
     if _clam is None:
+        try:
+            import pyclamd
 
-        if ANTIVIRUS_ON:
-            try:
-                import pyclamd
+            if settings.clam_socktype == 'unix':
+                _clam = pyclamd.ClamdUnixSocket()
 
-                if CLAM_SOCKTYPE == 'unix':
-                    _clam = pyclamd.ClamdUnixSocket()
+            elif settings.clam_socktype == 'tcp':
+                _clam = pyclamd.ClamdNetworkSocket(host=settings.clam_host, port=settings.clam_port)
 
-                elif CLAM_SOCKTYPE == 'tcp':
-                    _clam = pyclamd.ClamdNetworkSocket(host=CLAM_HOST, port=CLAM_PORT)
+            _clam.ping()
 
-                _clam.ping()
-
-            except Exception as err:
-                warnings.warn('Problem with ClamAV: {}'.format(str(err)))
-                _clam = None
+        except Exception as err:
+            warnings.warn('Problem with ClamAV: {}'.format(str(err)))
+            _clam = None
 
     return _clam
 
@@ -47,7 +41,7 @@ def is_infected(stream):
         None, '' - status unknown (pyclamd not installed)
     """
     clam = get_clam()
-    if not ANTIVIRUS_ON or clam is None:
+    if not settings.antivirus_on or clam is None:
         return None, ''
 
     result = clam.scan_stream(stream)

@@ -8,8 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from django_antivirus_field.utils import is_infected
 
-from django.conf import settings
-CLAMAV_FAIL_CASCADE = getattr(settings, 'CLAMAV_FAIL_CASCADE', False)
+from django_antivirus_field import settings
 
 
 class ClamError(Exception):
@@ -30,7 +29,7 @@ def file_validator(f):
     except ConnectionError:
         raise ClamError(_virus_check_fail_msg)
 
-    if has_virus is None and CLAMAV_FAIL_CASCADE:
+    if has_virus is None and settings.clam_fail_cascade:
         raise ClamError(_virus_check_fail_msg)
 
     if has_virus:
